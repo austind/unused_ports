@@ -1,0 +1,6 @@
+username = 'admin'
+password = 'password'
+npm_server = 'orion.example.org'
+npm_username = 'admin'
+npm_password = 'password'
+npm_query = "SELECT N.Caption AS hostname, N.IPAddress AS ipaddress FROM Orion.Nodes N WHERE N.Vendor = 'Cisco' ORDER BY hostname"
