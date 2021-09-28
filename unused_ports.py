@@ -207,7 +207,7 @@ def get_unused_ports(device, min_uptime=WEEK_SECONDS):
         port_result.update({'msg': 'Error connecting to device'})
         return port_result
     if uptime < min_uptime:
-        port_result.update({'msg': 'Device does not meet minimum uptime'})
+        port_result.update({'msg': f'Device does not meet minimum uptime: {uptime_str}'})
         return port_result
     unused_ports = find_unused_ports(result)
     if len(unused_ports) > 0:
