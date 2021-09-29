@@ -3,12 +3,15 @@ from concurrent.futures import ThreadPoolExecutor
 from pprint import pprint
 from scrapli import Scrapli
 from scrapli.exceptions import ScrapliConnectionError
+from scrapli.logging import enable_basic_logging
 from datetime import datetime
 import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import re
 import orionsdk
 import copy
+
+enable_basic_logging(file=True, level='debug')
 
 HOUR_SECONDS = 3600
 DAY_SECONDS = 24 * HOUR_SECONDS
@@ -167,7 +170,8 @@ def get_port_num(port):
         return int(port['interface'].split('/')[-1])
 
 def is_access_port(port):
-    return port['media_type'] == '10/100/1000BaseTX'
+    """ Any physical copper port """
+    return 'BaseTX' in port['media_type']
 
 def find_unused_ports(ports):
     results = []
@@ -193,6 +197,7 @@ def get_unused_ports(device, min_uptime=WEEK_SECONDS):
     port_result = {
         'success': False,
         'host': device['host'],
+        'ports': None,
         'unused_ports': None,
         'msg': '',
     }
@@ -208,7 +213,9 @@ def get_unused_ports(device, min_uptime=WEEK_SECONDS):
         return port_result
     if uptime < min_uptime:
         port_result.update({'msg': f'Device does not meet minimum uptime: {uptime_str}'})
+        port_result.update({'ports': result})
         return port_result
+    port_result.update({'ports': result})
     unused_ports = find_unused_ports(result)
     if len(unused_ports) > 0:
         for port in unused_ports:
