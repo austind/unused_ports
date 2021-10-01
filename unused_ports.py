@@ -34,7 +34,6 @@ def get_devices():
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
     npm_client = orionsdk.SwisClient(npm_server, npm_username, npm_password)
     npm_results = npm_client.query(npm_query)['results']
-    #import ipdb; ipdb.set_trace()
     for result in npm_results:
         my_device = copy.copy(device)
         my_device.update({'host': result['hostname']})
@@ -150,7 +149,6 @@ def last_used(port):
 def never_used(port):
     return is_down(port) and not last_output(port)
 
-
 def is_unused(port, cutoff=WEEK_SECONDS):
     if never_used(port):
         return True
@@ -208,8 +206,8 @@ def get_unused_ports(device, min_uptime=WEEK_SECONDS):
             response = conn.send_command("sh ver | i uptime")
             hostname, uptime_str = response.result.split(" uptime is ")
             uptime = parse_uptime(uptime_str)
-    except ScrapliConnectionError:
-        port_result.update({'msg': 'Error connecting to device'})
+    except ScrapliConnectionError as err:
+        port_result.update({'msg': f'Error connecting to device: {err}'})
         return port_result
     if uptime < min_uptime:
         port_result.update({'msg': f'Device does not meet minimum uptime: {uptime_str}'})
